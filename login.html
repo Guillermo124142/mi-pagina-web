@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión - Amyy Emporio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="img/favicon.ico" rel="icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Header */
+    .header {
+      z-index: 2;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .logo-custom {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .logo-custom:hover {
+      color: #f39c12;
+    }
+
+    .button-group a {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 4px;
+      margin-left: 8px;
+      color: #000;
+      text-decoration: none;
+      border: 1px solid #ccc;
+    }
+
+    .button-group a:hover {
+      opacity: 0.8;
+    }
+
+    .btn-success { background-color: #25d366; color: white; border: none; }
+    .btn-primary { background-color: #3b5998; color: white; border: none; }
+
+    /* Login box */
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 1;
+      position: relative;
+    }
+
+    .login-container h2 {
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .btn-login {
+      background-color: #f39c12;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-login:hover {
+      background-color: #d68910;
+    }
+
+    .login-footer {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .login-footer a {
+      color: #f39c12;
+      text-decoration: none;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+<canvas id="meteors"></canvas>
+
+<!-- ENCABEZADO CON BOTONES -->
+<div class="header">
+  <a href="index.html" class="logo-custom">AMYY EMPORIO LOGIN</a>
+  <div class="button-group">
+    <a href="login.html" title="Usuario"><i class="fa fa-user"></i></a>
+    <a href="cart.html" title="Carrito"><i class="fa fa-shopping-cart"></i></a>
+    <a href="https://wa.me/525650114322?text=Hola%2C%20me%20gustar%C3%ADa%20m%C3%A1s%20informaci%C3%B3n" class="btn-success" title="WhatsApp" target="_blank">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://www.facebook.com/amyy.emporio.tc" class="btn-primary" title="Facebook" target="_blank">
+      <i class="fab fa-facebook-f"></i>
+    </a>
+  </div>
+</div>
+
+<!-- FORMULARIO -->
+<div class="login-container">
+  <h2><i class="fa fa-user-circle"></i> Iniciar Sesión</h2>
+  <form>
+    <input type="email" class="form-control" placeholder="Correo electrónico" required>
+    <input type="password" class="form-control" placeholder="Contraseña" required>
+    <button type="submit" class="btn-login"><a href="index.html">Regístrate</a></button>
+  </form>
+  <div class="login-footer">
+    ¿No tienes cuenta? <a href="registro.html">Regístrate</a>
+  </div>
+</div>
+
+<!-- EFECTO METEORITOS -->
+<script>
+  const canvas = document.getElementById("meteors");
+  const ctx = canvas.getContext("2d");
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  class Meteor {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * -canvas.height;
+      this.length = Math.random() * 20 + 10;
+      this.speed = Math.random() * 4 + 2;
+      this.opacity = Math.random() * 0.5 + 0.3;
+      this.angle = Math.PI / 4;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(
+        this.x - this.length * Math.cos(this.angle),
+        this.y + this.length * Math.sin(this.angle)
+      );
+      ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    update() {
+      this.x += this.speed * Math.cos(this.angle);
+      this.y += this.speed * Math.sin(this.angle);
+      if (this.y > canvas.height || this.x > canvas.width) this.reset();
+      this.draw();
+    }
+  }
+
+  const meteors = Array.from({ length: 75 }, () => new Meteor());
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    meteors.forEach(meteor => meteor.update());
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+  
+  function aceptarCookies() {
+    document.getElementById("aviso-cookies").style.display = "none";
+    document.cookie = "cookiesAceptadas=true; max-age=31536000; path=/"; // 1 año
+  }
+
+  window.onload = function () {
+    const cookies = document.cookie.split("; ");
+    const cookiesAceptadas = cookies.find(row => row.startsWith("cookiesAceptadas="));
+    if (!cookiesAceptadas) {
+      document.getElementById("aviso-cookies").style.display = "block";
+    }
+  };
+
+
+</script>
+<!-- AVISO DE COOKIES -->
+<div id="aviso-cookies" style="
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  color: #fff;
+  text-align: center;
+  padding: 15px;
+  font-size: 0.9rem;
+  z-index: 9999;
+  display: none;">
+  Para visitar nuestra tienda nesesitas registrarte. <button onclick="aceptarCookies()" style="margin-left: 10px; padding: 6px 12px; background-color: #f39c12; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Aceptar</button>
+</div>
+
+</body>
+</html>
