@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Amyy Emporio CARRITO</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Free HTML Templates" name="keywords">
+    <meta content="Free HTML Templates" name="description">
+
+    <link href="img/favicon.ico" rel="icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <style>
+        .logo-custom {
+            font-family: 'Poppins', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: #000;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .logo-custom:hover {
+            color: #f39c12;
+            text-decoration: none;
+        }
+
+        .btn-square {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            text-align: center;
+            line-height: 38px;
+            border-radius: 4px;
+        }
+
+        #navbar-vertical {
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-vertical .dropdown-menu {
+            display: none;
+            position: static;
+        }
+
+        .navbar-vertical .dropdown.show .dropdown-menu {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .navbar-spacing {
+            margin-bottom: 30px;
+        }
+
+        .show-navbar {
+            display: block !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggle = document.querySelector('[data-toggle="collapse"]');
+            const navbar = document.querySelector('#navbar-vertical');
+            if (toggle && navbar) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    navbar.classList.toggle('show-navbar');
+                });
+            }
+
+            // Dropdown click handling
+            const dropdownToggles = document.querySelectorAll('.nav-item.dropdown > .dropdown-toggle');
+            dropdownToggles.forEach(function (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('show');
+                });
+            });
+        });
+    </script>
+</head>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const tbody = document.querySelector("tbody");
+    const subtotalLabel = document.querySelector(".bg-light h6:nth-child(2)");
+    const totalLabel = document.querySelector(".bg-light h5:nth-child(2)");
+    const shipping = 0;
+
+    function renderCart() {
+        tbody.innerHTML = "";
+
+        cart.forEach((item, index) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+<td class="align-middle d-flex align-items-center">
+  <img src="${item.img}" alt="" style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border-radius: 8px;">
+  <span>${item.name}</span>
+</td>
+
+            <td class="align-middle">$${item.price}</td>
+                <td class="align-middle">
+                    <div class="input-group quantity mx-auto" style="width: 100px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-sm btn-primary btn-minus" data-index="${index}"><i class="fa fa-minus"></i></button>
+                        </div>
+                        <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="${item.quantity}" readonly>
+                        <div class="input-group-btn">
+                            <button class="btn btn-sm btn-primary btn-plus" data-index="${index}"><i class="fa fa-plus"></i></button>
+                        </div>
+                    </div>
+                </td>
+                <td class="align-middle total-price">$${item.price * item.quantity}</td>
+                <td class="align-middle"><button class="btn btn-sm btn-danger btn-remove" data-index="${index}"><i class="fa fa-times"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        attachEvents();
+        updateTotals();
+    }
+
+    function attachEvents() {
+        document.querySelectorAll(".btn-plus").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const index = btn.getAttribute("data-index");
+                cart[index].quantity += 1;
+                saveAndRender();
+            });
+        });
+
+        document.querySelectorAll(".btn-minus").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const index = btn.getAttribute("data-index");
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                    saveAndRender();
+                }
+            });
+        });
+
+        document.querySelectorAll(".btn-remove").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const index = btn.getAttribute("data-index");
+                cart.splice(index, 1);
+                saveAndRender();
+            });
+        });
+    }
+
+    function updateTotals() {
+        let subtotal = 0;
+        cart.forEach(item => {
+            subtotal += item.price * item.quantity;
+        });
+        subtotalLabel.innerText = `$${subtotal}`;
+        totalLabel.innerText = `$${subtotal + shipping}`;
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    renderCart();
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); // evita que el <a> recargue la página
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const name = button.getAttribute('data-name');
+            const price = parseFloat(button.getAttribute('data-price'));
+            const img = button.getAttribute('data-img');
+
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ name, price, img, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+        });
+    });
+});
+</script>
+<body>
+   <!-- Estilos para animación blur -->
+<style>
+    .logo-custom {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #000;
+        text-decoration: none;
+        position: relative;
+        animation: blurText 2s ease-in-out forwards;
+        filter: blur(5px);
+        opacity: 0;
+    }
+
+    @keyframes blurText {
+        0% {
+            filter: blur(5px);
+            opacity: 0;
+        }
+        50% {
+            filter: blur(2px);
+            opacity: 0.5;
+        }
+        100% {
+            filter: blur(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<!-- Header con logo y botones -->
+<div class="container-fluid bg-light py-3 px-xl-5 d-none d-lg-flex">
+    <div class="row align-items-center w-100">
+        <div class="col-lg-6 text-left">
+            <a href="index.html" class="logo-custom">AMYY EMPORIO CARRITO</a>
+        </div>
+        <div class="col-lg-6">
+            <div class="button-group">
+                <a class="btn btn-outline-dark btn-square" href="login.html" title="Usuario">
+                    <i class="fa fa-user"></i>
+                </a>
+                <a class="btn btn-outline-dark btn-square" href="cart.html" title="Carrito">
+                    <i class="fa fa-shopping-cart"></i>
+                </a>
+                <a class="btn btn-success btn-square" href="https://wa.me/525650114322?text=Hola%2C%20me%20gustar%C3%ADa%20m%C3%A1s%20informaci%C3%B3n" target="_blank" title="Soporte por WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a class="btn btn-primary btn-square" href="https://www.facebook.com/amyy.emporio.tc" target="_blank" title="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Navbar Start estilo Shine -->
+    <div class="container-fluid bg-dark navbar-spacing">
+        <div class="row px-xl-5">
+            <!-- Categorías verticales -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="bg-primary d-flex align-items-center justify-content-between px-3" style="height: 65px; cursor: pointer;" data-toggle="collapse" data-target="#navbar-vertical">
+                    <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Categorías</h6>
+                    <i class="fa fa-angle-down text-dark"></i>
+                </div>
+                <nav class="navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical">
+                    <div class="navbar-nav w-100">
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Mujer <i class="fa fa-angle-right float-right mt-1"></i></a>
+                            <div class="dropdown-menu rounded-0 border-0 m-0">
+                                <a href="ropa.html" class="dropdown-item">Ropa</a>
+                                <a href="belleza.html" class="dropdown-item">Belleza</a>
+                                <a href="calzado.html" class="dropdown-item">Calzado</a>
+                                <a href="Especiales.html" class="dropdown-item">Especiales</a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Menú principal -->
+            <div class="col-lg-9">
+                <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
+                    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                        <div class="navbar-nav mr-auto py-0">
+                            <a href="about.html" class="nav-item nav-link">Sobre Nosotros</a>
+                            <a href="index.html" class="nav-item nav-link active">Inicio</a>
+                            <a href="contact.html" class="nav-item nav-link">Contacto</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+    <!-- Cart Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8 table-responsive mb-5">
+                <table class="table table-light table-borderless table-hover text-center mb-0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Productos</th>
+                            <th>Pricio</th>
+                            <th>cantidad</th>
+                            <th>Total</th>
+                            <th>Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle">
+                        <tr>
+                           
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-lg-4">
+                <form class="mb-30" action="">
+                    <div class="input-group">
+                        <div class="input-group-append">
+                        </div>
+                    </div>
+                </form>
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Resumen del carrito
+</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="border-bottom pb-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Subtotal</h6>
+                            <h6>$</h6>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5>Total</h5>
+                            <h5></h5>
+                        </div>
+         <a href="checkout.html">
+    <button class="btn btn-block btn-primary font-weight-bold my-3 py-3">Comprar Ahora</button>
+</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Cart End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Contact Javascript File -->
+    <script src="mail/jqBootstrapValidation.min.js"></script>
+    <script src="mail/contact.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+    
+</body>
+    <div class="row px-xl-5">
+       
+        <!-- Products Start -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Te Gustaría Llenar la Bolsa Con </span></h2>
+        <div class="row px-xl-5">
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-1.jpg" alt="">
+                        <div class="product-action">
+                        <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Enterizo straple" 
+                        data-price="95" 
+                        data-img="img/product-1.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Enterizo straple</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$95.00 MXN 
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-2.jpg" alt="">
+                        <div class="product-action">
+                        <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Vestido silueta" 
+                        data-price="160" 
+                        data-img="img/product-2.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Vestido silueta</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$160.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-3.jpg" alt="">
+                        <div class="product-action">
+                          <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Conjunto de moda" 
+                        data-price="160" 
+                        data-img="img/productRP-3.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Conjunto de moda</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$160.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-4.jpg" alt="">
+                        <div class="product-action">
+                              <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Conjunto de moda white" 
+                        data-price="146" 
+                        data-img="img/product-4.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Conjunto de moda white</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$146.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-5.jpg" alt="">
+                        <div class="product-action">
+                              <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Conjunto de moda Brow" 
+                        data-price="170" 
+                        data-img="img/product-5.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Conjunto de moda Brown</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$170.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa ftar text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                          
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-6.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Conjunto Nike" 
+                        data-price="150" 
+                        data-img="img/product-6.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Conjunto Nike</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$150.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-7.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Mono/short enterizo" 
+                        data-price="120" 
+                        data-img="img/product-7.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Mono/short enterizo</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$12O.00 MXN </h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/product-8.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="vestido straple" 
+                        data-price="100" 
+                        data-img="img/product-8.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Vestido straple</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$100.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Products End -->
+
+
+    <!-- Offer Start -->
+    <div class="container-fluid pt-5 pb-3">
+        <div class="row px-xl-5">
+            <div class="col-md-6">
+                <div class="product-offer mb-30" style="height: 300px;">
+                    <img class="img-fluid" src="img/offercalzado-1.jpg" alt="">
+                    <div class="offer-text">
+                        <h3 class="text-white mb-3">Calzado</h3>
+                        <a href="calzado.html" class="btn btn-primary">Comprar Ahora</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="product-offer mb-30" style="height: 300px;">
+                    <img class="img-fluid" src="img/offerespeciales-2.jpg" alt="">
+                    <div class="offer-text">
+                        <h3 class="text-white mb-3">Especiales</h3>
+                        <a href="Especiales.html" class="btn btn-primary">Comprar Ahora</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Offer End -->
+
+
+    <!-- Products Start -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Ropa y Moda</span></h2>
+        <div class="row px-xl-5">
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-1.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="vestido marmoleado" 
+                        data-price="165" 
+                        data-img="img/productRP-1.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Vestido marmoleado</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$165.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-2.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="maxi vestido casual" 
+                        data-price="100" 
+                        data-img="img/productRP-2.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Maxi vestido casual</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$100.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-3.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Mono negro" 
+                        data-price="100" 
+                        data-img="img/productRP-3.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Mono negro</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$100.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-4.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Sudadera Deportiva" 
+                        data-price="150" 
+                        data-img="img/productRP-4.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">sudadera Deportiva</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$150.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-5.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Camiseta corta" 
+                        data-price="65" 
+                        data-img="img/productRP-5.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">camiseta Corta</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$65.00 MXN </h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-6.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="vestido strap" 
+                        data-price="123" 
+                        data-img="img/productRP-1.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Vestido strap</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$123.00 MXN</h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-7.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Conjunto top y falda" 
+                        data-price="120" 
+                        data-img="img/productRP-7.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Conjunto top y falda</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$120.00 MXN </h5>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+                <div class="product-item bg-light mb-4">
+                    <div class="product-img position-relative overflow-hidden">
+                        <img class="img-fluid w-100" src="img/productRP-8.jpg" alt="">
+                        <div class="product-action">
+                            <a class="btn btn-outline-dark btn-square add-to-cart" 
+                        data-name="Blusa manga Larga" 
+                        data-price="65" 
+                        data-img="img/productRP-1.jpg">
+                    <i class="fa fa-shopping-cart"></i>
+                    </a>
+                        </div>
+                    </div>
+                    <div class="text-center py-4">
+                        <a class="h6 text-decoration-none text-truncate" href="">Blusa manga Larga</a>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <h5>$65.00 MXN</h5><h6 class="text-muted ml-2"><del></del></h6>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center mb-1">
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="fa fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                            <small class="far fa-star text-primary mr-1"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Products End -->
+
+
+    <!-- Offer Start -->
+    <div class="container-fluid pt-5 pb-3">
+        <div class="row px-xl-5">
+            <div class="col-md-6">
+                <div class="product-offer mb-30" style="height: 300px;">
+                    <img class="img-fluid" src="img/offercalzado-1.jpg" alt="">
+                    <div class="offer-text">
+                        <h3 class="text-white mb-3">Calzado</h3>
+                        <a href="calzado.html" class="btn btn-primary">Comprar Ahora</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="product-offer mb-30" style="height: 300px;">
+                    <img class="img-fluid" src="img/offerespeciales-2.jpg" alt="">
+                    <div class="offer-text">
+                        <h3 class="text-white mb-3">Especiales</h3>
+                        <a href="Especiales.html" class="btn btn-primary">Comprar Ahora</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Offer End -->
+
+
+        <!-- Puedes duplicar este bloque para más productos -->
+    </div>
+</div>
+<!-- Cross-Selling End -->
+<script>
+  document.querySelectorAll('.ver-detalle').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const producto = {
+        name: link.dataset.name,
+        price: link.dataset.price,
+        img: link.dataset.img
+      };
+      localStorage.setItem('productoDetalle', JSON.stringify(producto));
+      window.location.href = 'detalle.html';
+    });
+  });
+</script>
+</html>

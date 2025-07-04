@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle Producto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ... tus estilos como ya los tienes ... */
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <button class="close-btn" onclick="window.location.href='ropa.html'">✕</button>
+
+    <div class="images">
+      <img id="product-img" src="" alt="Producto">
+    </div>
+    <div class="info">
+      <div class="title" id="product-name">Cargando...</div>
+      <div class="sku">SKU: sm25031322050106065</div>
+      <div class="price" id="product-price">$MXN --</div>
+      <div class="stock">✔ En stock: 25 piezas disponibles</div>
+
+      <div class="label">Color:</div>
+      <div class="colors">
+        <div class="color-option selected" onclick="seleccionarColor(this)">Negro</div>
+        <div class="color-option" onclick="seleccionarColor(this)">Blanco</div>
+      </div>
+
+      <div class="label">Talla (MX):</div>
+      <div class="sizes">
+        <div class="size-option selected" onclick="seleccionarTalla(this)">CH</div>
+        <div class="size-option" onclick="seleccionarTalla(this)">M</div>
+        <div class="size-option" onclick="seleccionarTalla(this)">G</div>
+      </div>
+
+      <button class="btn-cart" onclick="agregarAlCarrito()">AÑADIR A LA BOLSA</button>
+    </div>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem('productoDetalle'));
+    if (!data) {
+      window.location.href = "ropa.html";
+    } else {
+      document.getElementById('product-img').src = data.img;
+      document.getElementById('product-img').alt = data.name;
+      document.getElementById('product-name').textContent = data.name;
+      document.getElementById('product-price').textContent = `$MXN ${data.price}`;
+    }
+
+    function seleccionarColor(elemento) {
+      document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+      elemento.classList.add('selected');
+    }
+
+    function seleccionarTalla(elemento) {
+      document.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+      elemento.classList.add('selected');
+    }
+
+    function agregarAlCarrito() {
+      const color = document.querySelector('.color-option.selected').innerText;
+      const talla = document.querySelector('.size-option.selected').innerText;
+
+      const producto = {
+        name: data.name,
+        price: parseFloat(data.price),
+        img: data.img,
+        quantity: 1,
+        color,
+        size: talla
+      };
+
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push(producto);
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      window.location.href = "cart.html";
+    }
+  </script>
+
+</body>
+</html>
